@@ -1,0 +1,15 @@
+{
+    "name": "fb-test-user-util",
+    "version": "0.0.1",
+    "author": "Daniel Schaffer <dan@dandoes.net>",
+    "description": "a command-line utility for creating and managing test users for a Facebook app",
+    "contributors": [
+        { "name": "Daniel Schaffer", "email": "dan@dandoes.net" }
+    ],
+    "scripts": {
+        "start": "node app"
+    },
+    "dependencies": {
+        "underscore": "*"
+    }
+}
