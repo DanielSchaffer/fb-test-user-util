@@ -157,44 +157,58 @@
                 addFriend: addFriend,
                 addToApp: addToApp,
 
-                addTestUsers: function(options) {
+                addTestUsers: function(options, callback) {
                     throwIfMissing(options, 'addTestUsers', 'count');
+
+                    var done = function() {
+                        console.log('[testUserUtil]', 'addTestUsers', 'done');
+                        if (callback && callback.constructor === Function) {
+                            callback();
+                        }
+                    };
 
                     getAppAccessToken(options, function(appAccessToken) {
                         createUsers(options, appAccessToken, parseInt(options.count), function(testUsers) {
                             if (options.friendCreatedUsers) {
                                 $.each(testUsers, function(user) {
                                     addFriends(options, appAccessToken, user, testUsers, function() {
-                                        console.log('[testUserUtil]', 'addTestUsers', 'done');
+                                        done();
                                     });
                                 });
                             } else if (options.friendAllUsers) {
                                 getAllTestUsers(options, appAccessToken, function(existingUsers) {
                                     $.each(testUsers, function(user) {
                                         addFriends(options, appAccessToken, user, existingUsers, function() {
-                                            console.log('[testUserUtil]', 'addTestUsers', 'done');
+                                            done();
                                         });
                                     });
                                 });
                             } else {
-                                console.log('[testUserUtil]', 'addTestUsers', 'done');
+                                done();
                             }
                         });
                     });
                 },
 
-                friendAllAppUsers: function(options) {
+                friendAllAppUsers: function(options, callback) {
+                    var done = function() {
+                        console.log('[testUserUtil]', 'friendAllAppUsers', 'done');
+                        if (callback && callback.constructor === Function) {
+                            callback();
+                        }
+                    };
+
                     getAppAccessToken(options, function(appAccessToken) {
                         getAllTestUsers(options, appAccessToken, function(testUsers) {
                             if (options.userId) {
                                 var user = $.find(testUsers, function(user) { return user.id === options.userId });
                                 addFriends(options, appAccessToken, user, testUsers, function() {
-                                    console.log('[testUserUtil]', 'friendAppAppUsers', 'done');
+                                    done();
                                 });
                             } else {
                                 $.each(testUsers, function(user) {
                                     addFriends(options, appAccessToken, user, testUsers, function() {
-                                        console.log('[testUserUtil]', 'friendAppAppUsers', 'done');
+                                        done();
                                     });
                                 });
                             }
@@ -221,10 +235,10 @@
             for (var method in commands) {
                 (function() {
                     var originalMethod = commands[method];
-                    commands[method] = function(options) {
+                    commands[method] = function(options, callback) {
                         throwIfMissing(options, null, 'appID');
                         throwIfMissing(options, null, 'apiSecret');
-                        originalMethod(options);
+                        originalMethod(options, callback);
                     }
                 })();
             }
