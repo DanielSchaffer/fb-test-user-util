@@ -19,9 +19,15 @@ The above executes the `addTestUsers` command, and passes the value `1` for the 
 
 ### web-based
 
-After cloning, open the `index.html` file, which is used as the host. To run commands, open the web browser's javascript console. To run the `addTestUsers` command:
+After cloning, open the `index.html` file, which is used as the host. To run commands, open the web browser's javascript console. All parameters are passed in an options object. To run the `addTestUsers` command:
 
     testUserUtil.addTestUsers({ count: 1, appID: '1234', apiSecret: 'abcd' });
+
+Additionally, each command takes an optional callback parameter which is called when the command is complete:
+
+    testUserUtil.addTestUsers({ count: 1, appID: '1234', apiSecret: 'abcd' }, function() {
+        console.log('done!');
+    });
 
 ## commands
 
