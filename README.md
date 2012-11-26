@@ -43,8 +43,12 @@ Adds one or more test users to the app, and optionally adds them as friends to e
   * **count** - *number* - the number of new test users to add
 
 **Optional Parameters**
-  * **friendCreatedUsers** - *boolean* - adds the created test users to eachothers friends lists
-  * **friendAllUsers** - *boolean* - adds all the created, and all existing test users, to eachothers friends lists
+  * **friendCreatedUsers** - *boolean* or *"random"*
+    * `true` - adds the created test users to eachothers friends lists
+    * `"random"` - each created user has a 50% chance of becoming friends with each other created user
+  * **friendAllUsers** - *boolean* or *"random"*
+    * `true` - adds all the created, and all existing test users, to eachothers friends lists
+    * `"random"` - each created user has a 50% chance of becoming friends with each created and existing user
   * *note* - if both `friendCreatedUsers` and `friendAllUsers` are specified, the `friendCreatedUsers` behavior is used.
 
 ### friendAllAppUsers
@@ -52,6 +56,7 @@ Adds all test users to the user's friends list, if specified, or adds all test u
 
 **Optional Parameters**
   * **userId** - *string* - the FB user id of the test user to add friends to
+  * **random** - *boolean* - when set, users have a 50% chance of becoming friends
 
 ### deleteUsers
 Deletes one or more specific test users, or all test users of an app.
@@ -59,6 +64,6 @@ Deletes one or more specific test users, or all test users of an app.
 *note* - Test users that have been added to multiple apps cannot be deleted until they are removed from the other apps.
 
 **Required Parameters**
-  * **users** - "all" *or* *userlist*
-    * `all` - deletes all test users of the app
+  * **users** - *"all"* *or* *userlist*
+    * `"all"` - deletes all test users of the app
     * `userlist` - a comma separated uid list (no spaces!), deletes all users in the list

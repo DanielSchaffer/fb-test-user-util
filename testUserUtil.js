@@ -100,19 +100,25 @@
             }
         };
 
-        var addFriends = function(options, appAccessToken, user, friends, callback) {
+        var addFriends = function(options, allSetting, appAccessToken, user, friends, callback) {
             var iterateFriends = function() {
                 var pending = 0;
 
                 var addFriends = function(friend) {
-                    addUserFriend(user, friend, function() {
-                        addUserFriend(friend, user, function() {
-                            pending--;
-                            if (!pending && callback && callback.constructor === Function) {
-                                callback();
-                            }
+                    var complete = function() {
+                        pending--;
+                        if (!pending && callback && callback.constructor === Function) {
+                            callback();
+                        }
+                    };
+                    if (allSetting === 'true' || (allSetting === 'random' && Math.random() >= .5)) {
+                        addUserFriend(user, friend, function() {
+                            addUserFriend(friend, user, complete);
                         });
-                    });
+                    } else {
+                        console.log('[testUserUtil]', (allSetting === 'random' ? 'randomly ' : '') + 'not adding friends for users', user.id, friend.id);
+                        setTimeout(complete, 300);
+                    }
                 };
 
                 $.each(friends, function(friend) {
@@ -175,10 +181,15 @@
                 addTestUsers: function(options, callback) {
                     throwIfMissing(options, 'addTestUsers', 'count');
 
-                    var done = function() {
-                        console.log('[testUserUtil]', 'addTestUsers', 'done');
-                        if (callback && callback.constructor === Function) {
-                            callback();
+                    var pending = 0;
+                    var done = function(ignorePending) {
+                        pending--;
+
+                        if (ignorePending || !pending) {
+                            console.log('[testUserUtil]', 'addTestUsers', 'done');
+                            if (callback && callback.constructor === Function) {
+                                callback();
+                            }
                         }
                     };
 
@@ -186,20 +197,18 @@
                         createUsers(options, appAccessToken, parseInt(options.count), function(testUsers) {
                             if (options.friendCreatedUsers) {
                                 $.each(testUsers, function(user) {
-                                    addFriends(options, appAccessToken, user, testUsers, function() {
-                                        done();
-                                    });
+                                    addFriends(options, options.friendCreatedUsers, appAccessToken, user, testUsers, done);
+                                    pending++;
                                 });
                             } else if (options.friendAllUsers) {
                                 getAllTestUsers(options, appAccessToken, function(existingUsers) {
                                     $.each(testUsers, function(user) {
-                                        addFriends(options, appAccessToken, user, existingUsers, function() {
-                                            done();
-                                        });
+                                        addFriends(options, options.friendAllUsers, appAccessToken, user, existingUsers, done);
+                                        pending++;
                                     });
                                 });
                             } else {
-                                done();
+                                done(true);
                             }
                         });
                     });
@@ -217,14 +226,10 @@
                         getAllTestUsers(options, appAccessToken, function(testUsers) {
                             if (options.userId) {
                                 var user = $.find(testUsers, function(user) { return user.id === options.userId });
-                                addFriends(options, appAccessToken, user, testUsers, function() {
-                                    done();
-                                });
+                                addFriends(options, options.random ? 'random' : 'true', appAccessToken, user, testUsers, done);
                             } else {
                                 $.each(testUsers, function(user) {
-                                    addFriends(options, appAccessToken, user, testUsers, function() {
-                                        done();
-                                    });
+                                    addFriends(options, options.random ? 'random' : 'true', appAccessToken, user, testUsers, done);
                                 });
                             }
                         });
