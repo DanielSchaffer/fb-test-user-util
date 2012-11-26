@@ -28,9 +28,6 @@ module.exports = function() {
             hasResponseBody: true
         }
     };
-    for (var name in method) {
-        method[name].name = name.toUpperCase();
-    }
 
     var httpMethod = function(method) {
         return function(url, data, callback, type) {
@@ -121,11 +118,10 @@ module.exports = function() {
         };
     };
 
-    return {
-        get: httpMethod(method.get),
-        post: httpMethod(method.post),
-        head: httpMethod(method.head),
-        put: httpMethod(method.put),
-        delete: httpMethod(method.delete)
-    };
+    var webclient = {};
+    for (var name in method) {
+        method[name].name = name.toUpperCase();
+        webclient[name] = httpMethod(method[name]);
+    }
+    return webclient;
 }();
