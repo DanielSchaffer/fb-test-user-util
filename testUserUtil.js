@@ -140,6 +140,21 @@
             }
         };
 
+        var deleteUser = function(appAccessToken, user, callback) {
+            var url = baseUrl + user.id + '?method=delete&access_token=' + appAccessToken;
+            console.log('[testUserUtil]', 'deleting user', user.id);
+            webclient.delete(url, function(response) {
+                if (response === true) {
+                    console.log('[testUserUtil]', 'user', user.id, 'deleted');
+                } else {
+                    console.warn('[testUserUtil]', 'could not delete user', user.id + ':', response.error.type, '-', response.error.message);
+                }
+                if (callback && callback.constructor === Function) {
+                    callback(response);
+                }
+            }, 'json');
+        };
+
         var commands = function() {
 
             var addFriend = function() {
@@ -213,6 +228,50 @@
                                 });
                             }
                         });
+                    });
+                },
+
+                deleteUsers: function(options, callback) {
+                    throwIfMissing(options, 'deleteUsers', 'users');
+
+                    getAppAccessToken(options, function(appAccessToken) {
+
+                        var deleteUsers = function(usersToDelete) {
+                            var pending = 0;
+                            var deleted = 0;
+                            console.log('[testUserUtil]', 'deleting', usersToDelete.length, 'users');
+
+                            $.each(usersToDelete, function(user) {
+                                deleteUser(appAccessToken, user, function(response) {
+                                    pending--;
+                                    if (response === true) {
+                                        deleted++;
+                                    }
+                                    if (!pending) {
+                                        console.log('[testUserUtil]', 'deleteUsers complete:', deleted, 'of', usersToDelete.length, 'users deleted');
+                                        if(callback && callback.constructor === Function) {
+                                            callback();
+                                        }
+                                    }
+                                });
+                                pending++;
+                            })
+                        };
+
+                        if (options.users === 'all') {
+                            getAllTestUsers(options, appAccessToken, function(testUsers) {
+                                if (testUsers.length) {
+                                    deleteUsers(testUsers);
+                                } else {
+                                    console.warn('[testUserUtil]', 'app', options.appID, 'has no test users');
+                                }
+                            });
+                        } else {
+                            var users = $.map(options.users.split(','), function(userId) {
+                                return { id: userId };
+                            });
+                            deleteUsers(users);
+                        }
                     });
                 }
             }

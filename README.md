@@ -53,4 +53,12 @@ Adds all test users to the user's friends list, if specified, or adds all test u
 **Optional Parameters**
   * **userId** - *string* - the FB user id of the test user to add friends to
 
-### 
+### deleteUsers
+Deletes one or more specific test users, or all test users of an app.
+
+*note* - Test users that have been added to multiple apps cannot be deleted until they are removed from the other apps.
+
+**Required Parameters**
+  * **users** - "all" *or* *userlist*
+    * `all` - deletes all test users of the app
+    * `userlist` - a comma separated uid list (no spaces!), deletes all users in the list
