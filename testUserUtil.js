@@ -8,9 +8,9 @@
             var noop = function() {};
             console = this.console || this.debug || { log: noop, warn: noop, error: noop };
         } else {
-            $ = require('underscore')
+            $ = require('underscore');
             webclient = require('./webclient');
-            console = this.console;
+            console = require('console');
         }
 
         var baseUrl = 'https://graph.facebook.com/';
@@ -57,10 +57,13 @@
             console.log('[testUserUtil]', 'addUserFriend for users', user.id, friend.id);
             var url = baseUrl + user.id + '/friends/' + friend.id + '?method=post&access_token=' + user.access_token;
             webclient.post(url, function(response) {
+                if (response !== true) {
+                    console.error('[testUserUtil]', 'error adding friends', user.id, friend.id + ':', response.error.type, '-', response.error.message);
+                }
                 if (callback && callback.constructor === Function) {
                     callback(response);
                 }
-            });
+            }, 'json');
         };
 
         var installAppUser = function(options, appAccessToken, userId, callback) {
@@ -296,16 +299,14 @@
             };
             return $.extend({ run: run }, commands);
         } else {
-            for (var method in commands) {
-                (function() {
-                    var originalMethod = commands[method];
-                    commands[method] = function(options, callback) {
-                        throwIfMissing(options, null, 'appID');
-                        throwIfMissing(options, null, 'apiSecret');
-                        originalMethod(options, callback);
-                    }
-                })();
-            }
+            $.each(commands, function(method) {
+                var originalMethod = commands[method];
+                commands[method] = function(options, callback) {
+                    throwIfMissing(options, null, 'appID');
+                    throwIfMissing(options, null, 'apiSecret');
+                    originalMethod(options, callback);
+                };
+            });
             return commands;
         }
     };
